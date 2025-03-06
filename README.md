@@ -1,18 +1,18 @@
 # youteam-test-task
 
 
-<h2 id="run">Запуск приложения</h2>
+<h2>Регистрация пользователей</h2>
 
 1. Склонируйте репозиторий:
 
     ```
-    git clone https://github.com/Tarasyonok/library-api
+    git clone https://github.com/Tarasyonok/youteam-test-task
     ```
 
 2. Перейди в папку с проектом:
 
     ```
-    cd library-api
+    cd youteam-test-task
     ```
 
 3. Соберите контейнер:
