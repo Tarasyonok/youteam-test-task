@@ -1,0 +1,14 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "description": "Login Frontend",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -p 8080"
+  },
+  "author": "Kir Tarasov",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "latest"
+  }
+}

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:17
+    container_name: login_db
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    env_file:
+      - ./api/.env-prod
+    ports:
+      - 5432:5432
+    networks:
+      - login_net
+
+  backend:
+    image: backend_image
+    container_name: login_app
+    build:
+      context: ./api
+    env_file:
+      - ./api/.env-prod
+    depends_on:
+      - db
+    command: sh -c "alembic upgrade head && gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind=0.0.0.0:8000"
+    ports:
+      - 8000:8000
+    networks:
+      - login_net
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    depends_on:
+      - db
+      - backend
+    ports:
+      - 8080:8080
+    networks:
+      - login_net
+
+networks:
+  login_net:
+    driver: bridge
+
+volumes:
+  postgresdata:

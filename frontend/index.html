@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Тестовое задание</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+  <div class="container mt-5 d-none" id="account-container" style="max-width: 700px;">
+    <div class="alert alert-success">Вы авторизованы</div>
+    <h1 id="render-name"></h1>
+    <h2 id="render-email"></h2>
+    <button type="submit" id="logout-btn" data-mdb-button-init data-mdb-ripple-init
+            class="btn btn-primary btn-block mt-4 w-100">Выйти из аккаунта</button>
+  </div>
+  <div class="container mt-5 d-none" id="form-container" style="max-width: 700px;">
+    <ul class="nav nav-pills mb-5  nav-justified" id="pills-tab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="pills-login-tab" data-bs-toggle="pill" data-bs-target="#pills-login"
+          type="button" role="tab" aria-controls="pills-login" aria-selected="true">Войти</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pills-register-tab" data-bs-toggle="pill" data-bs-target="#pills-register"
+          type="button" role="tab" aria-controls="pills-register" aria-selected="false">Зарегистрироваться</button>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="pills-login" role="tabpanel" aria-labelledby="tab-login">
+        <form id="login-form">
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input required type="email" id="loginEmail" class="form-control" />
+            <label class="form-label" for="loginEmail">E-mail</label>
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input required type="password" id="loginPassword" class="form-control" />
+            <label class="form-label" for="loginPassword">Пароль</label>
+          </div>
+
+          <button type="submit" id="login-btn" data-mdb-button-init data-mdb-ripple-init
+            class="btn btn-primary btn-block mb-4 w-100">Войти</button>
+        </form>
+      </div>
+      <div class="tab-pane fade" id="pills-register" role="tabpanel" aria-labelledby="tab-register">
+        <form id="register-form">
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input required type="text" id="registerName" class="form-control" />
+            <label class="form-label" for="registerName">Имя</label>
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input required type="email" id="registerEmail" class="form-control" />
+            <label class="form-label" for="registerEmail">E-mail</label>
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <input required type="password" id="registerPassword" class="form-control" />
+            <label class="form-label" for="registerPassword">Пароль</label>
+          </div>
+          <button type="submit" id="register-btn" data-mdb-button-init data-mdb-ripple-init
+            class="btn btn-primary btn-block mb-3 w-100">Зарегистрироваться</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="error-msg" class="alert alert-danger d-none"></div>
+  </div>
+
+
+  <script>
+    let loginBtn = document.querySelector("#login-btn");
+    let registerBtn = document.querySelector("#register-btn");
+    let errorMsg = document.querySelector("#error-msg");
+
+    let loginForm = document.querySelector("#login-form");
+    let registerForm = document.querySelector("#register-form");
+
+    let renderName = document.querySelector("#render-name");
+    let renderEmail = document.querySelector("#render-email");
+    let logoutBtn = document.querySelector("#logout-btn");
+
+    let accountContainer = document.querySelector("#account-container");
+    let formContainer = document.querySelector("#form-container");
+
+    document.querySelector("#pills-login-tab").addEventListener("click", (event) => {
+      errorMsg.classList.add("d-none");
+    });
+
+    document.querySelector("#pills-register-tab").addEventListener("click", (event) => {
+      errorMsg.classList.add("d-none");
+    });
+
+    loginBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (!(loginForm.checkValidity())) {
+        loginForm.reportValidity();
+        return;
+      }
+
+
+      let email = document.querySelector("#loginEmail").value;
+      let password = document.querySelector("#loginPassword").value;
+
+      let userData = {
+        email: email,
+        password: password,
+      };
+
+      let response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        let response = await fetch("http://localhost:8000/users/me", {
+          credentials: "include",
+        });
+        let data = await response.json();
+        renderName.innerHTML = data.name;
+        renderEmail.innerHTML = data.email;
+        formContainer.classList.add("d-none");
+        accountContainer.classList.remove("d-none");
+        errorMsg.classList.add("d-none");
+      } else {
+        console.error("Registration failed:", response.status, response.statusText);
+        try {
+          let errorData = await response.json();
+          errorData = errorData.detail;
+          console.log(errorData, typeof errorData);
+          if (typeof errorData == "object") {
+            errorData = errorData[0].msg;
+          }
+          console.error("Error details:", errorData);
+          errorMsg.innerHTML = errorData;
+        } catch (e) {
+          console.error("Could not parse error response:", e);
+        }
+        errorMsg.classList.remove("d-none");
+      }
+    });
+
+    registerBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      if (!(registerForm.checkValidity())) {
+        registerForm.reportValidity();
+        return;
+      }
+
+      let name = document.querySelector("#registerName").value;
+      let email = document.querySelector("#registerEmail").value;
+      let password = document.querySelector("#registerPassword").value;
+
+      let userData = {
+        name: name,
+        email: email,
+        password: password,
+      };
+
+      let response = await fetch("http://localhost:8000/auth/register", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        let response = await fetch("http://localhost:8000/users/me", {
+          credentials: "include",
+        });
+        let data = await response.json();
+        renderName.innerHTML = data.name;
+        renderEmail.innerHTML = data.email;
+        formContainer.classList.add("d-none");
+        accountContainer.classList.remove("d-none");
+        errorMsg.classList.add("d-none");
+      } else {
+        console.error("Registration failed:", response.status, response.statusText);
+        try {
+          let errorData = await response.json();
+          errorData = errorData.detail;
+          console.log(errorData, typeof errorData);
+          if (typeof errorData == "object") {
+            errorData = errorData[0].msg;
+          }
+          console.error("Error details:", errorData);
+          errorMsg.innerHTML = errorData;
+        } catch (e) {
+          console.error("Could not parse error response:", e);
+        }
+        errorMsg.classList.remove("d-none");
+      }
+    });
+
+    logoutBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+
+      await fetch("http://localhost:8000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      document.querySelector("#pills-login form").reset();
+      document.querySelector("#pills-register form").reset();
+
+      accountContainer.classList.add("d-none");
+      formContainer.classList.remove("d-none");
+    });
+
+    async function pageReload() {
+        let response = await fetch("http://localhost:8000/users/me", {
+          credentials: "include",
+        });
+        if (response.ok) {
+          let data = await response.json();
+          renderName.innerHTML = data.name;
+          renderEmail.innerHTML = data.email;
+          formContainer.classList.add("d-none");
+          accountContainer.classList.remove("d-none");
+          formContainer.classList.add("d-none");
+        } else {
+          accountContainer.classList.add("d-none");
+          formContainer.classList.remove("d-none");
+        }
+    }
+
+    pageReload();
+  </script>
+</body>
+
+</html>
