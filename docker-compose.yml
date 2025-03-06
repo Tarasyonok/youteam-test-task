@@ -2,6 +2,7 @@ services:
   db:
     image: postgres:17
     container_name: login_db
+    restart: always
     volumes:
       - postgresdata:/var/lib/postgresql/data
     env_file:
@@ -14,6 +15,7 @@ services:
   backend:
     image: backend_image
     container_name: login_app
+    restart: always
     build:
       context: ./api
     env_file:
@@ -29,6 +31,7 @@ services:
   frontend:
     container_name: frontend
     build: ./frontend
+    restart: always
     depends_on:
       - db
       - backend

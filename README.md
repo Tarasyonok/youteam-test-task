@@ -27,4 +27,4 @@
     docker compose up
     ```
 
-5. Приложение будет запущено на [http://localhost:8080](http://localhost:8080). Для тестирования api перейдите в swagger документацию: [http://localhost:8000/docs](http://localhost:8080)
+5. Приложение будет запущено на [http://localhost:8080](http://localhost:8080). Для тестирования api перейдите в swagger документацию: [http://localhost:8000/docs](http://localhost:8000/docs)
